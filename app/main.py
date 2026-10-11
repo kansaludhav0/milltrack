@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from app.api.router import api_router
 from app.core.config import settings
 from app.core.db import close_pool, init_pool
+from app.web.pages import router as web_router
 
 TAGS_METADATA = [
     {"name": "auth", "description": "Login for every role. One endpoint: employee_code+PIN (shop-floor) or email+password (GM/MD admin), both against `identity.users`."},
@@ -57,6 +58,10 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
+# Plain HTML pages, not JSON API resources — deliberately outside api_v1_prefix since
+# these are pages a browser navigates to directly (the APK download + upload pages),
+# not an api client's resources. Same-origin with the API they call, so no CORS needed.
+app.include_router(web_router)
 
 
 @app.exception_handler(PostgresError)
